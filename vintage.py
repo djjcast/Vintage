@@ -975,15 +975,24 @@ class CenterOnCursor(sublime_plugin.TextCommand):
     def run(self, edit):
         self.view.show_at_center(self.view.sel()[0])
 
-class ScrollCursorLineToTop(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.view.set_viewport_position((self.view.viewport_position()[0], self.view.layout_extent()[1]))
-        self.view.show(self.view.sel()[0], False)
+class ScrollCursorLineCallback(sublime_plugin.TextCommand):
+    def run(self, edit, region_set):
+        for region in region_set:
+            self.view.sel().add(sublime.Region(long(region[0]), long(region[1])))
 
-class ScrollCursorLineToBottom(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.view.set_viewport_position((self.view.viewport_position()[0], 0.0))
-        self.view.show(self.view.sel()[0], False)
+class ScrollCursorLine(sublime_plugin.TextCommand):
+    def run(self, edit, to):
+        if to == 'top':
+            self.view.set_viewport_position((self.view.viewport_position()[0], self.view.layout_extent()[1]))
+            self.view.show(self.view.sel()[0], False)
+        elif to == 'bottom':
+            self.view.set_viewport_position((self.view.viewport_position()[0], 0))
+            self.view.show(self.view.sel()[-1], False)
+        region_set = []
+        for region in self.view.sel():
+            region_set.append([region.a, region.b])
+        self.view.sel().clear()
+        sublime.set_timeout(lambda: self.view.run_command('scroll_callback', {'region_set': region_set}), 0)
 
 class ViScrollLines(ViPrefixableCommand):
     def run(self, edit, forward = True, repeat = None):
