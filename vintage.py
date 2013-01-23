@@ -976,9 +976,10 @@ class CenterOnCursor(sublime_plugin.TextCommand):
         self.view.show_at_center(self.view.sel()[0])
 
 class ScrollCursorLineCallback(sublime_plugin.TextCommand):
-    def run(self, edit, region_set):
+    def run(self, edit, region_set, motion_mode):
         for region in region_set:
             self.view.sel().add(sublime.Region(long(region[0]), long(region[1])))
+        set_motion_mode(self.view, int(motion_mode))
 
 class ScrollCursorLine(sublime_plugin.TextCommand):
     def run(self, edit, to):
@@ -991,8 +992,10 @@ class ScrollCursorLine(sublime_plugin.TextCommand):
         region_set = []
         for region in self.view.sel():
             region_set.append([region.a, region.b])
+        motion_mode = g_input_state.motion_mode
         self.view.sel().clear()
-        sublime.set_timeout(lambda: self.view.run_command('scroll_cursor_line_callback', {'region_set': region_set}), 0)
+        sublime.set_timeout(lambda: self.view.run_command('scroll_cursor_line_callback',
+                                                          {'region_set': region_set, 'motion_mode': motion_mode}), 0)
 
 class ViScrollLines(ViPrefixableCommand):
     def run(self, edit, forward = True, repeat = None):
