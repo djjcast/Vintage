@@ -992,7 +992,7 @@ class ScrollCursorLine(sublime_plugin.TextCommand):
         for region in self.view.sel():
             region_set.append([region.a, region.b])
         self.view.sel().clear()
-        sublime.set_timeout(lambda: self.view.run_command('scroll_callback', {'region_set': region_set}), 0)
+        sublime.set_timeout(lambda: self.view.run_command('scroll_cursor_line_callback', {'region_set': region_set}), 0)
 
 class ViScrollLines(ViPrefixableCommand):
     def run(self, edit, forward = True, repeat = None):
